@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ما هي حالة ذاكرتك العاملة؟</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF7F2;
+    --ink:#1E1B16;
+    --ink-soft:#6b6457;
+    --card:#FFFFFF;
+    --line:#E8E1D4;
+    --red:#D64545;
+    --blue:#3B6E9C;
+    --green:#4C8C5C;
+    --yellow:#D4A52C;
+    --shadow: 0 1px 2px rgba(30,27,22,0.04), 0 8px 24px rgba(30,27,22,0.06);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    min-height:100vh;
+    font-family:'Cairo','Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  body.lang-en{font-family:'Inter','Cairo',sans-serif;}
+
+  /* texture */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(30,27,22,0.035) 1px, transparent 0);
+    background-size: 22px 22px;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .wrap{
+    position:relative; z-index:1;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 20px 80px;
+  }
+
+  /* WORKSHOP CREDIT BANNER */
+  .workshop-banner{
+    text-align:center;
+    background: linear-gradient(180deg, #fff, #fdfbf7);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding: 16px 18px 14px;
+    margin: 4px 0 16px;
+    box-shadow: var(--shadow);
+  }
+  .wb-kicker{
+    font-size:13.5px; font-weight:800; color:var(--ink);
+    line-height:1.6; margin-bottom:6px;
+  }
+  .wb-workshop{
+    font-size:12.5px; font-weight:600; color:var(--ink-soft);
+    line-height:1.6; margin-bottom:10px;
+  }
+  .wb-meta{
+    font-size:12px; color:var(--ink-soft); font-weight:600;
+    display:flex; align-items:center; justify-content:center; gap:7px; flex-wrap:wrap;
+  }
+  .wb-meta .wb-presenter{color:var(--ink); font-weight:800;}
+  .wb-meta .wb-sep{color:var(--line); font-weight:400;}
+
+  /* TOP BAR */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 6px 2px 22px;
+  }
+  .brandmark{
+    display:flex; align-items:center; gap:10px;
+    font-weight:800; font-size:15px; letter-spacing:.2px;
+    color:var(--ink);
+  }
+  .brandmark .dot{width:8px;height:8px;border-radius:50%;background:var(--red);}
+  .langswitch{
+    display:flex; background:var(--card); border:1px solid var(--line);
+    border-radius:999px; padding:3px; box-shadow:var(--shadow);
+  }
+  .langswitch button{
+    border:none; background:transparent; cursor:pointer;
+    padding:7px 16px; border-radius:999px; font-weight:700; font-size:13px;
+    font-family:inherit; color:var(--ink-soft); transition:.2s;
+  }
+  .langswitch button.active{background:var(--ink); color:#fff;}
+
+  /* PROGRESS */
+  .progress-track{
+    height:6px; background:var(--line); border-radius:999px; overflow:hidden;
+    margin-bottom: 28px;
+  }
+  .progress-fill{
+    height:100%; width:0%; border-radius:999px;
+    background: linear-gradient(90deg, var(--red), var(--yellow), var(--green), var(--blue));
+    transition: width .35s ease;
+  }
+
+  /* SCREENS */
+  .screen{display:none;}
+  .screen.active{display:block; animation: fadeUp .45s ease both;}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
+
+  /* INTRO */
+  .stroop-demo{
+    display:flex; justify-content:center; align-items:center;
+    gap: 22px; margin: 18px 0 30px; flex-wrap:wrap;
+  }
+  .stroop-word{
+    font-size: clamp(40px, 9vw, 64px);
+    font-weight:900;
+    line-height:1;
+  }
+  .w-red{color:var(--blue);}   /* word RED rendered in blue ink, classic Stroop conflict */
+  .w-green{color:var(--yellow);}
+  .w-blue{color:var(--green);}
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12px; font-weight:700; letter-spacing:.06em;
+    color:var(--ink-soft); text-transform:uppercase;
+    background:var(--card); border:1px solid var(--line);
+    padding:6px 12px; border-radius:999px; margin-bottom:18px;
+  }
+  body.lang-ar .eyebrow{text-transform:none;}
+
+  h1.title{
+    font-size: clamp(28px, 5.2vw, 40px);
+    font-weight:800; line-height:1.2; margin: 0 0 14px;
+  }
+  p.lead{
+    font-size:16px; line-height:1.85; color:#3a3530; margin:0 0 16px;
+  }
+  .intro-card{
+    background:var(--card); border:1px solid var(--line); border-radius:20px;
+    padding: 28px 26px; box-shadow:var(--shadow); margin-bottom:22px;
+  }
+  .scale-legend{
+    display:grid; grid-template-columns: repeat(5,1fr); gap:8px; margin-top:18px;
+  }
+  .scale-legend div{
+    text-align:center; font-size:12px; font-weight:700; color:var(--ink-soft);
+    background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:8px 4px;
+  }
+  .scale-legend div b{display:block; font-size:16px; color:var(--ink); margin-bottom:2px;}
+
+  .field{margin-bottom:16px;}
+  .field label{display:block; font-size:13px; font-weight:700; color:var(--ink-soft); margin-bottom:6px;}
+  .field select, .field input{
+    width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line);
+    background:#fff; font-family:inherit; font-size:14.5px; color:var(--ink);
+  }
+  .field select{
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    appearance:none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'><path d='M1 1L7 7L13 1' stroke='%236b6457' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: left 14px center;
+    background-size: 12px 8px;
+    padding-left: 36px;
+    cursor:pointer;
+  }
+  body.lang-ar .field select{
+    background-position: left 14px center;
+    padding-left: 36px;
+    padding-right: 14px;
+  }
+  body.lang-en .field select{
+    background-position: right 14px center;
+    padding-right: 36px;
+    padding-left: 14px;
+  }
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    background:var(--ink); color:#fff; border:none; cursor:pointer;
+    font-family:inherit; font-weight:700; font-size:15px;
+    padding:15px 26px; border-radius:14px; width:100%;
+    transition:.2s; box-shadow:var(--shadow);
+  }
+  .btn:hover{transform:translateY(-1px); background:#0f0d0a;}
+  .btn:active{transform:translateY(0);}
+  .btn:disabled{opacity:.4; cursor:not-allowed; transform:none;}
+  .btn-ghost{
+    background:transparent; color:var(--ink); border:1px solid var(--line); box-shadow:none;
+  }
+  .btn-ghost:hover{background:var(--card); transform:none;}
+  .btn-row{display:flex; gap:10px; margin-top:8px;}
+
+  /* QUESTION CARD */
+  .q-card{
+    background:var(--card); border:1px solid var(--line); border-radius:22px;
+    padding: 34px 28px; box-shadow:var(--shadow); min-height: 280px;
+    display:flex; flex-direction:column;
+  }
+  .q-meta{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;
+  }
+  .q-axis{
+    font-size:11.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase;
+    padding:5px 11px; border-radius:999px; color:#fff;
+  }
+  body.lang-ar .q-axis{text-transform:none;}
+  .axis-focus{background:var(--blue);}
+  .axis-shift{background:var(--green);}
+  .axis-pressure{background:var(--red);}
+  .q-num{font-size:13px; color:var(--ink-soft); font-weight:700;}
+
+  .q-text{
+    font-size: clamp(19px, 3.6vw, 24px); font-weight:700; line-height:1.55;
+    margin-bottom: 28px; flex-grow:1;
+  }
+
+  .likert{
+    display:grid; grid-template-columns: repeat(5,1fr); gap:8px;
+  }
+  .likert label{
+    position:relative;
+  }
+  .likert input{position:absolute; opacity:0; pointer-events:none;}
+  .likert .opt{
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    border:1.5px solid var(--line); border-radius:14px; padding:12px 4px 10px;
+    cursor:pointer; transition:.15s; background:#fff;
+  }
+  .likert .opt .num{
+    width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:14px; background:var(--bg); color:var(--ink-soft); transition:.15s;
+  }
+  .likert .opt .txt{font-size:10.5px; font-weight:700; color:var(--ink-soft); text-align:center; line-height:1.3;}
+  .likert input:checked + .opt{border-color:var(--ink); background:#fbfaf8;}
+  .likert input:checked + .opt .num{background:var(--ink); color:#fff;}
+  .likert input:checked + .opt .txt{color:var(--ink);}
+  .likert .opt:hover{border-color:#c9c1b0;}
+
+  .nav-row{display:flex; gap:10px; margin-top:22px;}
+  .nav-row .btn{width:auto; flex:1;}
+
+  /* RESULTS */
+  .result-hero{
+    text-align:center; padding: 10px 0 6px;
+  }
+  .result-badge{
+    width:120px; height:120px; border-radius:50%; margin:0 auto 18px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:38px; font-weight:900; color:#fff;
+    box-shadow: var(--shadow);
+  }
+  .result-title{font-size:24px; font-weight:800; margin:0 0 6px;}
+  .result-sub{color:var(--ink-soft); font-size:14.5px; margin:0 0 26px;}
+
+  .axis-bars{display:flex; flex-direction:column; gap:18px; margin: 10px 0 28px;}
+  .axis-bar-row{}
+  .axis-bar-head{display:flex; justify-content:space-between; font-size:13.5px; font-weight:700; margin-bottom:7px;}
+  .axis-bar-track{height:12px; background:var(--line); border-radius:999px; overflow:hidden;}
+  .axis-bar-fill{height:100%; border-radius:999px; transition: width 1s cubic-bezier(.2,.9,.3,1);}
+
+  .interp-card{
+    background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:22px 24px; margin-bottom:16px;
+  }
+  .interp-card h3{margin:0 0 10px; font-size:16px; font-weight:800;}
+  .interp-card p{margin:0; font-size:14.5px; line-height:1.85; color:#3a3530;}
+
+  .tips-list{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:10px;}
+  .tips-list li{
+    display:flex; gap:10px; align-items:flex-start;
+    font-size:14px; line-height:1.7; color:#3a3530;
+  }
+  .tips-list li .chip{
+    flex-shrink:0; width:22px; height:22px; border-radius:50%; background:var(--bg);
+    display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:var(--ink-soft);
+    margin-top:1px;
+  }
+
+  .disclaimer{
+    font-size:12px; color:var(--ink-soft); line-height:1.8; text-align:center;
+    margin-top: 26px; padding-top:18px; border-top:1px dashed var(--line);
+  }
+
+  footer.page-footer{
+    text-align:center; color:var(--ink-soft); font-size:12px; margin-top:34px;
+  }
+
+  @media (max-width: 480px){
+    .q-card{padding:24px 18px;}
+    .likert{grid-template-columns: repeat(5,1fr); gap:5px;}
+    .likert .opt{padding:9px 2px 8px;}
+    .likert .opt .num{width:24px; height:24px; font-size:12px;}
+    .likert .opt .txt{font-size:8.5px; line-height:1.15;}
+    .scale-legend div b{font-size:14px;}
+    .scale-legend{grid-template-columns: repeat(5,1fr); gap:5px;}
+    .scale-legend div{font-size:10px; padding:6px 2px;}
+  }
+
+  [data-en]{display:none;}
+  body.lang-en [data-ar]{display:none;}
+  body.lang-en [data-en]{display:inline;}
+  body.lang-en h3[data-en],
+  body.lang-en p[data-en],
+  body.lang-en div[data-en]{display:block;}
+  body.lang-en label[data-en]{display:block;}
+</style>
+</head>
+<body class="lang-ar">
+
+<div class="wrap">
+
+  <div class="workshop-banner">
+    <div class="wb-kicker">
+      <span data-ar>استبيان التقييم الذاتي للتركيز والمرونة الذهنية (مستوحى من مفاهيم اختبار ستروب)</span> 
+      <span data-en>A Survey on Focus &amp; Mental Distraction (in light of the Stroop phenomenon)</span>
+    </div>
+    <div class="wb-workshop">
+      <span data-ar>ضمن ورشة عمل بعنوان: «أهمية تنشيط الذاكرة العاملة في عصر الذكاء الاصطناعي»</span>
+      <span data-en>Part of the workshop: "The Importance of Activating Working Memory in the Age of AI"</span>
+    </div>
+    <div class="wb-meta">
+      <span class="wb-presenter">د. سعد مأمون أبوعلوان</span>
+      <span class="wb-sep">·</span>
+      <span data-ar>منصة أريد العلمية</span><span data-en>Arid Scientific Platform</span>
+      <span class="wb-sep">·</span>
+      <span data-ar>يونيو 2026م</span><span data-en>June 2026</span>
+    </div>
+  </div>
+
+  <div class="topbar">
+    <div class="brandmark"><span class="dot"></span><span data-ar>ورشة الذاكرة العاملة</span><span data-en>Working Memory Workshop</span></div>
+    <div class="langswitch">
+      <button id="btn-ar" class="active" onclick="setLang('ar')">عربي</button>
+      <button id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <!-- ===================== SCREEN 0: INTRO ===================== -->
+  <div class="screen active" id="screen-intro">
+    <div class="stroop-demo" aria-hidden="true">
+      <span class="stroop-word w-red" data-ar>أحمر</span>
+      <span class="stroop-word w-green" data-en>RED</span>
+      <span class="stroop-word w-green" data-ar>أخضر</span>
+      <span class="stroop-word w-blue" data-en>GREEN</span>
+      <span class="stroop-word w-blue" data-ar>أزرق</span>
+      <span class="stroop-word w-red" data-en>BLUE</span>
+    </div>
+
+    <div class="eyebrow">
+      <span data-ar>قبل أن تبدأ</span><span data-en>before you start</span>
+    </div>
+
+    <h1 class="title">
+      <span data-ar>ما هي حالة ذاكرتك العاملة؟</span>
+      <span data-en>What's the state of your working memory?</span>
+    </h1>
+
+    <p class="lead">
+      <span data-ar>هل لاحظت التشويش اللحظي عند قراءة الكلمات أعلاه؟ هذا هو "صراع ستروب" — تنافس بين قراءة الكلمة ورؤية لونها. يكشف هذا التنافس مدى قدرة عقلك على تجاهل المعلومة المُشتتة والتركيز على ما هو مطلوب فعلًا.</span>
+      <span data-en>Did you feel a flicker of confusion reading the words above? That's the "Stroop conflict" — a tug-of-war between reading the word and naming its ink color. It reveals how well your mind can ignore a distracting cue and focus on what's actually asked.</span>
+    </p>
+    <p class="lead">
+      <span data-ar>هذا الاستبيان مكوّن من 12 عبارة قصيرة عن تجربتك الشخصية مع التركيز والتشتت، ويستغرق أقل من 4 دقائق. لا توجد إجابات صحيحة أو خاطئة.</span>
+      <span data-en>This survey has 12 short statements about your everyday focus and distraction. It takes under 4 minutes. There are no right or wrong answers.</span>
+    </p>
+
+    <div class="intro-card">
+      <label style="font-size:13px;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:10px;">
+        <span data-ar>طريقة الإجابة: لكل عبارة، اختر مدى موافقتك</span>
+        <span data-en>How to answer: for each statement, pick how much you agree</span>
+      </label>
+      <div class="scale-legend">
+        <div><b>1</b><span data-ar>لا أوافق بشدة</span><span data-en>Strongly disagree</span></div>
+        <div><b>2</b><span data-ar>لا أوافق</span><span data-en>Disagree</span></div>
+        <div><b>3</b><span data-ar>محايد</span><span data-en>Neutral</span></div>
+        <div><b>4</b><span data-ar>أوافق</span><span data-en>Agree</span></div>
+        <div><b>5</b><span data-ar>أوافق بشدة</span><span data-en>Strongly agree</span></div>
+      </div>
+    </div>
+
+    <div class="intro-card">
+      <div class="row2">
+        <div class="field">
+          <label data-ar>الجنس</label><label data-en>Gender</label>
+          <select id="demo-gender">
+            <option value="" data-ar="اختر" data-en="Select">اختر</option>
+            <option value="male" data-ar="ذكر" data-en="Male">ذكر</option>
+            <option value="female" data-ar="أنثى" data-en="Female">أنثى</option>
+          </select>
+        </div>
+        <div class="field">
+          <label data-ar>العمر</label><label data-en>Age</label>
+          <select id="demo-age">
+            <option value="" data-ar="اختر" data-en="Select">اختر</option>
+            <option value="under20" data-ar="أقل من 20" data-en="Under 20">أقل من 20</option>
+            <option value="20-30" data-ar="20–30" data-en="20–30">20–30</option>
+            <option value="31-40" data-ar="31–40" data-en="31–40">31–40</option>
+            <option value="41-50" data-ar="41–50" data-en="41–50">41–50</option>
+            <option value="over50" data-ar="أكثر من 50" data-en="Over 50">أكثر من 50</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label data-ar>المستوى التعليمي</label><label data-en>Education level</label>
+        <select id="demo-edu">
+          <option value="" data-ar="اختر" data-en="Select">اختر</option>
+          <option value="secondary" data-ar="ثانوي فأقل" data-en="High school or less">ثانوي فأقل</option>
+          <option value="bachelor" data-ar="بكالوريوس" data-en="Bachelor's degree">بكالوريوس</option>
+          <option value="grad" data-ar="دراسات عليا" data-en="Graduate studies">دراسات عليا</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn" onclick="startSurvey()">
+      <span data-ar>ابدأ الاستبيان →</span>
+      <span data-en>Start the survey →</span>
+    </button>
+  </div>
+
+  <!-- ===================== SCREEN 1: QUESTIONS (template, injected by JS) ===================== -->
+  <div class="screen" id="screen-questions">
+    <div class="q-card">
+      <div class="q-meta">
+        <span class="q-axis" id="qAxisTag"></span>
+        <span class="q-num" id="qNum"></span>
+      </div>
+      <div class="q-text" id="qText"></div>
+      <div class="likert" id="qLikert"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" id="btnPrev" onclick="prevQ()">
+        <span data-ar>السابق</span><span data-en>Back</span>
+      </button>
+      <button class="btn" id="btnNext" onclick="nextQ()" disabled>
+        <span data-ar>التالي</span><span data-en>Next</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN 2: RESULTS ===================== -->
+  <div class="screen" id="screen-results">
+    <div class="result-hero">
+      <div class="result-badge" id="resultBadge">A</div>
+      <h2 class="result-title" id="resultTitle">—</h2>
+      <p class="result-sub" id="resultSub">—</p>
+    </div>
+
+    <div class="axis-bars">
+      <div class="axis-bar-row">
+        <div class="axis-bar-head">
+          <span data-ar>التركيز وتجاهل المشتتات</span><span data-en>Focus &amp; filtering distraction</span>
+          <span id="scoreFocusLabel"></span>
+        </div>
+        <div class="axis-bar-track"><div class="axis-bar-fill" id="barFocus" style="background:var(--blue);"></div></div>
+      </div>
+      <div class="axis-bar-row">
+        <div class="axis-bar-head">
+          <span data-ar>المرونة الذهنية والانتقال بين المهام</span><span data-en>Mental flexibility &amp; task switching</span>
+          <span id="scoreShiftLabel"></span>
+        </div>
+        <div class="axis-bar-track"><div class="axis-bar-fill" id="barShift" style="background:var(--green);"></div></div>
+      </div>
+      <div class="axis-bar-row">
+        <div class="axis-bar-head">
+          <span data-ar>الثبات تحت الضغط والتشتيت</span><span data-en>Stability under pressure</span>
+          <span id="scorePressureLabel"></span>
+        </div>
+        <div class="axis-bar-track"><div class="axis-bar-fill" id="barPressure" style="background:var(--red);"></div></div>
+      </div>
+    </div>
+
+    <div class="interp-card">
+      <h3 data-ar>ماذا تعني نتيجتك؟</h3>
+      <h3 data-en>What does your result mean?</h3>
+      <p id="interpText">—</p>
+    </div>
+
+    <div class="interp-card">
+      <h3 data-ar>خطوات عملية يمكنك تجربتها</h3>
+      <h3 data-en>Practical steps to try</h3>
+      <ul class="tips-list" id="tipsList"></ul>
+    </div>
+
+    <button class="btn btn-ghost" onclick="restartSurvey()">
+      <span data-ar>↺ إعادة تعبئة الاستبيان</span>
+      <span data-en>↺ Retake the survey</span>
+    </button>
+
+    <div class="disclaimer">
+      <span data-ar>هذا الاستبيان أداة توعوية تعليمية لورشة تدريبية، وليس أداة تشخيص نفسي أو سريري. ولا يقيس الأداء الفعلي على اختبار ستروب، بل تصورك الذاتي عن قدراتك. عند الحاجة لتقييم دقيق، يُرجى الرجوع لمتخصص.</span>
+      <span data-en>This survey is an educational tool for a training workshop, not a clinical or diagnostic instrument. It measures your self-perception, not actual Stroop-task performance. For a rigorous assessment, please consult a qualified specialist.</span>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    <span data-ar>© ورشة تدريبية — الذاكرة العاملة وكفاءة المعالج المركزي</span>
+    <span data-en>© Training Workshop — Working Memory &amp; Central Executive Efficiency</span>
+  </footer>
+</div>
+
+<script>
+/* ================= DATA ================= */
+// axis: focus | shift | pressure   |   reverse: true means statement is phrased "positively" (good focus) so it must be reverse-scored
+const QUESTIONS = [
+  { axis:"focus", reverse:true,  ar:"أستطيع التركيز على ما أفعله حتى لو كانت هناك أصوات أو حركة حولي.", en:"I can stay focused on a task even with noise or movement around me." },
+  { axis:"focus", reverse:false, ar:"يصعب عليّ تجاهل المؤثرات المحيطة عندما أحاول إنجاز مهمة تحتاج تركيزًا.", en:"I find it hard to ignore surrounding stimuli when a task needs concentration." },
+  { axis:"focus", reverse:false, ar:"إذا قرأت كلمة \"أصفر\" مكتوبة بخط لونه أزرق، أعتقد أنني سأتلعثم قليلًا قبل أن أقول \"أزرق\".", en:"If I read the word \"yellow\" printed in blue ink, I'd likely stumble before saying \"blue\"." },
+  { axis:"focus", reverse:false, ar:"عندما تتعارض معلومتان أمامي في نفس الوقت، أشعر بنوع من التشويش لحظيًا.", en:"When two pieces of information conflict at once, I feel a brief moment of confusion." },
+  { axis:"focus", reverse:true,  ar:"أتمكن من إنهاء المهمة التي أمامي دون أن أنشغل بأمور أخرى تشتت بالي.", en:"I can finish the task in front of me without getting sidetracked by other things." },
+
+  { axis:"shift", reverse:true,  ar:"أستطيع التبديل بسهولة بين مهمتين مختلفتين دون أن أرتبك.", en:"I can switch easily between two different tasks without getting confused." },
+  { axis:"shift", reverse:false, ar:"إذا طلب مني أحد أن أفعل عكس ما هو معتاد، أعتقد أن ذلك سيتطلب مني وقتًا ومجهودًا إضافيًا.", en:"If asked to do the opposite of what's habitual, I'd need noticeably more time and effort." },
+  { axis:"shift", reverse:false, ar:"أجد صعوبة في إيقاف عادة ذهنية معتادة عندما يُطلب مني فعل شيء مختلف عنها.", en:"I find it hard to stop a habitual mental pattern when asked to do something different." },
+  { axis:"shift", reverse:false, ar:"أشعر أن ردة فعلي الأولى (التلقائية) أحيانًا تكون أقوى من قدرتي على ضبطها أو إيقافها.", en:"My first, automatic reaction sometimes feels stronger than my ability to control or stop it." },
+
+  { axis:"pressure", reverse:false, ar:"في الأماكن المزدحمة أو الصاخبة، يصعب عليّ التركيز فيما أقوله أو أفعله.", en:"In crowded or noisy places, I struggle to focus on what I'm saying or doing." },
+  { axis:"pressure", reverse:false, ar:"عندما أكون متعبًا أو متوترًا، تزداد صعوبة تجاهل المشتتات حولي.", en:"When I'm tired or stressed, ignoring distractions around me becomes harder." },
+  { axis:"pressure", reverse:true,  ar:"بشكل عام، أعتبر نفسي شخصًا يركّز بسهولة ولا يتشوش بسرعة.", en:"Overall, I consider myself someone who focuses easily and isn't quickly thrown off." },
+];
+
+const AXIS_LABEL = {
+  focus:   { ar:"التركيز", en:"Focus", cls:"axis-focus" },
+  shift:   { ar:"المرونة", en:"Shift", cls:"axis-shift" },
+  pressure:{ ar:"الضغط",   en:"Pressure", cls:"axis-pressure" },
+};
+
+let lang = "ar";
+let current = 0;
+const answers = new Array(QUESTIONS.length).fill(null);
+
+/* ================= LANG SWITCH ================= */
+function setLang(l){
+  lang = l;
+  document.body.classList.toggle("lang-en", l === "en");
+  document.body.classList.toggle("lang-ar", l === "ar");
+  document.documentElement.setAttribute("lang", l);
+  document.documentElement.setAttribute("dir", l === "ar" ? "rtl" : "ltr");
+  document.getElementById("btn-ar").classList.toggle("active", l === "ar");
+  document.getElementById("btn-en").classList.toggle("active", l === "en");
+
+  // translate select option text to match active language
+  document.querySelectorAll('option[data-ar]').forEach(o=>{
+    const text = l === "ar" ? o.getAttribute("data-ar") : o.getAttribute("data-en");
+    if(text) o.textContent = text;
+  });
+
+  if(document.getElementById("screen-questions").classList.contains("active")){
+    renderQuestion();
+  }
+  if(document.getElementById("screen-results").classList.contains("active")){
+    renderResults();
+  }
+}
+
+/* ================= NAVIGATION BETWEEN SCREENS ================= */
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function startSurvey(){
+  current = 0;
+  showScreen("screen-questions");
+  updateProgress();
+  renderQuestion();
+}
+
+function updateProgress(){
+  const pct = Math.round((current / QUESTIONS.length) * 100);
+  document.getElementById("progressFill").style.width = pct + "%";
+}
+
+function renderQuestion(){
+  const q = QUESTIONS[current];
+  const axisInfo = AXIS_LABEL[q.axis];
+  const tag = document.getElementById("qAxisTag");
+  tag.textContent = lang === "ar" ? axisInfo.ar : axisInfo.en;
+  tag.className = "q-axis " + axisInfo.cls;
+
+  document.getElementById("qNum").textContent =
+    (lang === "ar" ? `سؤال ${current+1} من ${QUESTIONS.length}` : `Question ${current+1} of ${QUESTIONS.length}`);
+
+  document.getElementById("qText").textContent = lang === "ar" ? q.ar : q.en;
+
+  const scaleLabels = lang === "ar"
+    ? ["لا أوافق بشدة","لا أوافق","محايد","أوافق","أوافق بشدة"]
+    : ["Strongly disagree","Disagree","Neutral","Agree","Strongly agree"];
+
+  const likertEl = document.getElementById("qLikert");
+  likertEl.innerHTML = "";
+  for(let v=1; v<=5; v++){
+    const id = "opt-"+v;
+    const checked = answers[current] === v ? "checked" : "";
+    likertEl.insertAdjacentHTML("beforeend", `
+      <label>
+        <input type="radio" name="likert" id="${id}" value="${v}" ${checked} onchange="selectAnswer(${v})">
+        <span class="opt">
+          <span class="num">${v}</span>
+          <span class="txt">${scaleLabels[v-1]}</span>
+        </span>
+      </label>
+    `);
+  }
+
+  document.getElementById("btnPrev").style.visibility = current === 0 ? "hidden" : "visible";
+  document.getElementById("btnNext").disabled = answers[current] === null;
+  document.getElementById("btnNext").querySelector("[data-ar]").textContent =
+    current === QUESTIONS.length - 1 ? "" : "";
+  setNextButtonLabel();
+}
+
+function setNextButtonLabel(){
+  const isLast = current === QUESTIONS.length - 1;
+  const btn = document.getElementById("btnNext");
+  btn.innerHTML = isLast
+    ? `<span data-ar>إظهار النتيجة ✓</span><span data-en>Show my result ✓</span>`
+    : `<span data-ar>التالي</span><span data-en>Next</span>`;
+}
+
+function selectAnswer(v){
+  answers[current] = v;
+  document.getElementById("btnNext").disabled = false;
+}
+
+function nextQ(){
+  if(answers[current] === null) return;
+  if(current === QUESTIONS.length - 1){
+    showResults();
+    return;
+  }
+  current++;
+  updateProgress();
+  renderQuestion();
+}
+
+function prevQ(){
+  if(current === 0) return;
+  current--;
+  updateProgress();
+  renderQuestion();
+}
+
+/* ================= SCORING ================= */
+function computeScores(){
+  const sums = { focus:0, shift:0, pressure:0 };
+  const counts = { focus:0, shift:0, pressure:0 };
+
+  QUESTIONS.forEach((q, i)=>{
+    let v = answers[i];
+    if(q.reverse) v = 6 - v; // reverse-code positively phrased items so higher = more difficulty/distraction
+    sums[q.axis] += v;
+    counts[q.axis] += 1;
+  });
+
+  // convert each axis to a 0-100 "difficulty/distraction" scale
+  const toPct = (axis) => {
+    const min = counts[axis] * 1, max = counts[axis] * 5;
+    return Math.round(((sums[axis] - min) / (max - min)) * 100);
+  };
+
+  return {
+    focus: toPct("focus"),
+    shift: toPct("shift"),
+    pressure: toPct("pressure"),
+  };
+}
+
+function overallBand(avg){
+  if(avg < 35) return "strong";
+  if(avg < 65) return "moderate";
+  return "challenged";
+}
+
+const BAND_CONTENT = {
+  strong: {
+    badgeColor: "var(--green)", badgeText: "A",
+    title_ar: "تحكم تنفيذي قوي", title_en: "Strong executive control",
+    sub_ar: "نتائجك تشير إلى قدرة جيدة على تجاهل المشتتات والتحكم بالاستجابات التلقائية.",
+    sub_en: "Your answers suggest solid control over distraction and automatic responses.",
+    interp_ar: "بحسب إجاباتك، يبدو أنك تتعامل بكفاءة جيدة مع \"صراع ستروب\" اليومي: حين تتعارض المعلومات أو تتزاحم المشتتات، تستطيع غالبًا حسم الأمر والعودة للمهمة الأساسية بسرعة معقولة. هذا يعكس معالجًا مركزيًا نشطًا في كف الاستجابات غير المرغوبة، لكن لا يعني ذلك أنك محصّن تمامًا من التشتت في كل الظروف.",
+    interp_en: "Based on your answers, you seem to handle everyday \"Stroop-like\" conflicts well: when information competes or distractions pile up, you can usually resolve it and return to the main task fairly quickly. This points to an active central executive at the inhibition level — though it doesn't mean you're immune to distraction in every situation."
+  },
+  moderate: {
+    badgeColor: "var(--yellow)", badgeText: "B",
+    title_ar: "تحكم تنفيذي متوسط", title_en: "Moderate executive control",
+    sub_ar: "تجمع نتائجك بين لحظات تركيز جيدة ولحظات تتأثر فيها بالمشتتات.",
+    sub_en: "Your results mix solid focus moments with times you're more affected by distraction.",
+    interp_ar: "إجاباتك تعكس نمطًا متوسطًا: في كثير من الأحيان تستطيع كف المشتتات والتركيز على المهمة، لكن في ظروف معينة — كالضغط، التعدد، أو الإرهاق — يصبح ذلك أصعب. هذا طبيعي جدًا، فالمعالج المركزي يتأثر بعوامل كثيرة (النوم، التوتر، البيئة)، وهو قابل للتحسن بالتمرين المستمر على الانتباه.",
+    interp_en: "Your answers reflect a middle pattern: you often manage to suppress distractions and stay on task, but under certain conditions — pressure, multitasking, fatigue — it gets harder. That's very normal; the central executive is shaped by sleep, stress, and environment, and it can be strengthened with consistent attention practice."
+  },
+  challenged: {
+    badgeColor: "var(--red)", badgeText: "C",
+    title_ar: "تحكم تنفيذي يحتاج دعمًا", title_en: "Executive control could use support",
+    sub_ar: "تشير نتائجك إلى تشتت متكرر وصعوبة في تجاهل المعلومات المتعارضة.",
+    sub_en: "Your results suggest frequent distraction and difficulty filtering conflicting cues.",
+    interp_ar: "تشير إجاباتك إلى أنك غالبًا تشعر بصعوبة واضحة في تجاهل المشتتات أو إيقاف الاستجابات التلقائية، خصوصًا عند تعارض المعلومات أو في البيئات المزدحمة. هذا لا يعني وجود \"خلل\"، بل هو إشارة مفيدة لمعرفة أين تحتاج لتدريب انتباهك أكثر. كثير من الناس يحسّنون هذه القدرة تدريجيًا بتمارين بسيطة ومنتظمة.",
+    interp_en: "Your answers suggest you often find it noticeably hard to filter distractions or stop automatic responses, especially when cues conflict or the environment is busy. This isn't a \"deficiency\" — it's a useful signal of where focused attention training could help. Many people improve this gradually with simple, consistent exercises."
+  }
+};
+
+const TIPS = {
+  ar: [
+    "خصّص فترات عمل قصيرة (20–25 دقيقة) بدون إشعارات هاتف، ثم استرح 5 دقائق.",
+    "قبل المهمة المهمة، اكتب على ورقة المشتتات المحتملة لتُبقيها خارج ذهنك مؤقتًا.",
+    "جرّب تمارين تنفّس بسيطة (4 ثوانٍ شهيق، 4 ثوانٍ زفير) عند الشعور بالتشتت.",
+    "قلّل المهام المتزامنة؛ التبديل المستمر بين التطبيقات يستهلك طاقة المعالج المركزي.",
+    "النوم الكافي أحد أقوى العوامل المؤثرة في قدرتك على الكف والتركيز.",
+  ],
+  en: [
+    "Use short focus blocks (20–25 minutes) with phone notifications off, then a 5-minute break.",
+    "Before an important task, jot down likely distractions on paper to park them temporarily.",
+    "Try simple breathing (4 seconds in, 4 seconds out) when you notice your attention drifting.",
+    "Reduce simultaneous tasks; constant app-switching drains central-executive resources.",
+    "Adequate sleep is one of the strongest factors behind your inhibition and focus capacity.",
+  ]
+};
+
+function showResults(){
+  showScreen("screen-results");
+  updateProgress();
+  document.getElementById("progressFill").style.width = "100%";
+  renderResults();
+}
+
+function renderResults(){
+  const scores = computeScores();
+  const avg = Math.round((scores.focus + scores.shift + scores.pressure) / 3);
+  const band = overallBand(avg);
+  const content = BAND_CONTENT[band];
+
+  document.getElementById("resultBadge").style.background = content.badgeColor;
+  document.getElementById("resultBadge").textContent = content.badgeText;
+  document.getElementById("resultTitle").textContent = lang === "ar" ? content.title_ar : content.title_en;
+  document.getElementById("resultSub").textContent = lang === "ar" ? content.sub_ar : content.sub_en;
+  document.getElementById("interpText").textContent = lang === "ar" ? content.interp_ar : content.interp_en;
+
+  document.getElementById("barFocus").style.width = scores.focus + "%";
+  document.getElementById("barShift").style.width = scores.shift + "%";
+  document.getElementById("barPressure").style.width = scores.pressure + "%";
+
+  const pctLabel = (v) => (lang === "ar" ? `${v}٪` : `${v}%`);
+  document.getElementById("scoreFocusLabel").textContent = pctLabel(scores.focus);
+  document.getElementById("scoreShiftLabel").textContent = pctLabel(scores.shift);
+  document.getElementById("scorePressureLabel").textContent = pctLabel(scores.pressure);
+
+  const tipsList = document.getElementById("tipsList");
+  tipsList.innerHTML = "";
+  const tips = TIPS[lang];
+  tips.forEach((t, i)=>{
+    tipsList.insertAdjacentHTML("beforeend", `<li><span class="chip">${i+1}</span><span>${t}</span></li>`);
+  });
+}
+
+function restartSurvey(){
+  answers.fill(null);
+  current = 0;
+  document.getElementById("progressFill").style.width = "0%";
+  showScreen("screen-intro");
+}
+
+/* Note: option text starts correct in the HTML (Arabic) and is kept in
+   sync by setLang() on every language toggle — no extra init needed. */
+
+</script>
+</body>
+</html>
